@@ -15,7 +15,7 @@ def hidden_init(layer):
 class ActorModel(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, input_size, output_size, seed, fc1_units=256, fc2_units=256):
+    def __init__(self, input_size, output_size, seed, fc1_units=400, fc2_units=300):
         """Initialize parameters and build actor model.
         Params
         ======
@@ -30,7 +30,6 @@ class ActorModel(nn.Module):
         self.fc1 = nn.Linear(input_size, fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, output_size)
-        self.bn = nn.BatchNorm1d(fc1_units)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -44,7 +43,6 @@ class ActorModel(nn.Module):
         if state.dim() == 1:
             state = torch.unsqueeze(state,0)
         x = F.relu(self.fc1(state))
-        x = self.bn(x)
         x = F.relu(self.fc2(x))
         x = F.tanh(self.fc3(x))
         return x
@@ -53,7 +51,7 @@ class ActorModel(nn.Module):
 class CriticModel(nn.Module):
     """Critic (Value) Model."""
 
-    def __init__(self, input_size, seed, fc1_units=256, fc2_units=256):
+    def __init__(self, input_size, seed, fc1_units=400, fc2_units=300):
         """Initialize parameters and build model.
         Params
         ======
@@ -67,7 +65,6 @@ class CriticModel(nn.Module):
         self.fc1 = nn.Linear(input_size, fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, 1)
-        self.bn1 = nn.BatchNorm1d(fc1_units)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -80,7 +77,6 @@ class CriticModel(nn.Module):
         """Build a critic network that maps (states, actions) pairs to Q-values."""
         xs = torch.cat((states, actions), dim=1)
         x = F.relu(self.fc1(xs))
-        x = self.bn1(x)
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
